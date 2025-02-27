@@ -1,0 +1,14 @@
+Prots_Scanner
+
+This Project aims to create a linux command ligne utility that help developper list a sumaary of the ports status in a specific PC ( hostmacine , or other machine )
+
+
+
+The project Tree is : 
+
+
+
+Build the Project 
+    run the following command 
+        - make clean 
+        - make 
