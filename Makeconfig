@@ -1,0 +1,10 @@
+CC = gcc
+CFLAGS = -Wall -g
+SRC = $(wildcard src/*.c)
+OBJ = $(patsubst src/%.c, obj/%.o, $(SRC))
+CC_VERSION = $(shell gcc --version)
+TARGET = bin/main_program
+INCLUDES = -Iinclude
+DATABASE_FILE_NAME = my_database_file.db
+DATABASE_DEFAULT_FILE_NAME = local_database_file.db
+EMPLOYEE_LIST = "yasser,jemli,1,11,manager" "ali,benali,2,12,developer" "mohamed,salah,3,8,designer"
