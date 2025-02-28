@@ -14,6 +14,6 @@
 
 
 int is_port_open (const char *ip_address , int port);
-void scanning_hostmachine_ports(const char *ip_address , bool verbose_mode);
+void scanning_all_ports(const char *ip_address , bool verbose_mode);
 
 #endif

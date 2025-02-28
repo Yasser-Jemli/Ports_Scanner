@@ -34,7 +34,7 @@ int is_port_open(const char *ip_address, int port) {
 }
 
 
-void scanning_hostmachine_ports(const char *ip_address , bool verbose_mode) {
+void scanning_all_ports(const char *ip_address , bool verbose_mode) {
     int port;
     int status;
 
@@ -56,5 +56,26 @@ void scanning_hostmachine_ports(const char *ip_address , bool verbose_mode) {
             log_message("ERROR", "IP Adress : %s  - Facing Error with Port %d", verbose_mode , ip_address,port);
         }
         
+    }
+}
+
+void scanning_range_of_ports(const char *ip_adress , char *port_range , bool verbose_mode){
+    int start_port , end_port , status;
+    char *token = strtok(port_range , "-");
+    start_port = atoi(token);
+    token = strtok(NULL , "-");
+    end_port = atoi(token);
+
+    for (int port = start_port ; port <= end_port ; port++){
+        status = is_port_open(ip_adress , port);
+        if (status == PORT_ACTIVE){
+            log_message("INFO" , "IP Adress : %s -> Port %d is open" , verbose_mode , ip_adress , port);
+        }
+        else if (status == PORT_INACTIVE){
+            log_message("INFO" , "IP Adress : %s -> Port %d is closed" , verbose_mode , ip_adress , port);
+        }
+        else{
+            log_message("ERROR" , "IP Adress : %s -> Facing Error with Port %d" , verbose_mode , ip_adress , port);
+        }
     }
 }

@@ -17,6 +17,8 @@
 #define LOCALHOSTSEARCHNOTSELECTED 0
 #define IPADDRESSSEARCHSELECTED 1
 #define IPADDRESSSEARCHNOTSELECTED 0
+#define RANGEPORTSSEARCHSELECTED 1
+#define RANGEPORTSSEARCHNOTSELECTED 0
 
 void print_help_menu(int argc , char *argv[]);
 void log_scan_result(const char *ip_address, int port, int status);

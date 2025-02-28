@@ -8,6 +8,7 @@ void print_help_menu(int argc , char *argv[]){
     printf("  -v        Enable verbose mode\n");
 }
 
+
 void get_timestamp(char *buffer, int size) {
     time_t now = time(NULL);
     struct tm *tm_info = localtime(&now);
