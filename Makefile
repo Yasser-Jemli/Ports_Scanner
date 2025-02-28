@@ -16,6 +16,7 @@ obj/%.o: src/%.c
 # Clean up build artifacts
 clean:
 	rm -rf obj/* bin/*
+	rm -rf port_scan_results.log
 
 # Setup target (informational)
 setup:

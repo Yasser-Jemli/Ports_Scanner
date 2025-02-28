@@ -34,7 +34,7 @@ int is_port_open(const char *ip_address, int port) {
 }
 
 
-void scanning_hostmachine_ports(const char *ip_address , int verbose_mode) {
+void scanning_hostmachine_ports(const char *ip_address , bool verbose_mode) {
     int port;
     int status;
 
@@ -42,19 +42,18 @@ void scanning_hostmachine_ports(const char *ip_address , int verbose_mode) {
         status = is_port_open(ip_address, port);
         if (status == PORT_ACTIVE) 
         {
-            fprintf(stdout , "Port %d is open\n", port);
-            log_message("INFO", "Port %d is open", port ,verbose_mode);
+            log_message("INFO", " IP Adress : %s -> Port %d is open", verbose_mode , ip_address ,port);
             
         } 
         
         else if (status == PORT_INACTIVE) 
         {
-            fprintf(stdout,"Port %d is closed\n", port);
+            log_message("INFO", "IP Adress : %s  Port %d is closed", verbose_mode ,ip_address ,port);
         }
         
         else
         {
-            fprintf(stderr , "Facing an error on port %d\n", port);
+            log_message("ERROR", "IP Adress : %s  - Facing Error with Port %d", verbose_mode , ip_address,port);
         }
         
     }

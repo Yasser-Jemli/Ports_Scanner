@@ -14,7 +14,8 @@ void get_timestamp(char *buffer, int size) {
     strftime(buffer, size, "%Y-%m-%d %H:%M:%S", tm_info);
 }
 
-void log_message(const char *level, const char *message, int print_to_stdout) {
+
+void log_message(const char *level, const char *format, bool verbose_mode, ...) {
     FILE *log_file = fopen(LOG_FILE, "a");
     if (log_file == NULL) {
         perror("Error opening log file");
@@ -24,12 +25,19 @@ void log_message(const char *level, const char *message, int print_to_stdout) {
     char timestamp[20];
     get_timestamp(timestamp, sizeof(timestamp));
 
-    // Format: [TIME] [LEVEL] message
-    fprintf(log_file, "[%s] [%s] %s\n", timestamp, level, message);
+    va_list args;
+    va_start(args, verbose_mode);
 
-    if (print_to_stdout) {
-        fprintf(stdout ,"[%s] [%s] %s\n", timestamp, level, message);
+    if (verbose_mode) {
+        printf("- %s - [%s] ", timestamp, level); 
+        vprintf(format, args);                    
+        printf("\n");                             
     }
 
+    fprintf(log_file, "- %s - [%s] ", timestamp, level);  
+    vfprintf(log_file, format, args);                  
+    fprintf(log_file, "\n");                          
+
+    va_end(args);
     fclose(log_file);
 }
