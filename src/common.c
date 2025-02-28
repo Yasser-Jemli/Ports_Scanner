@@ -4,7 +4,9 @@ void print_help_menu(int argc , char *argv[]){
     printf("Usage: %s -[OPT 1] [ARG 1]  -[OPT 2] ...\n", argv[0]);
     printf("Options:\n");
     printf("  -h        Show this help menu\n");
-    printf("  -l        list a summarry of the available ports in the host machine\n");
+    printf("  -l        Scan the available ports in the host machine or if include -r argumenet scan range of pots in host machine\n");
+    printf("  -p        Specify the IP address to scan\n");
+    printf("  -r        Specify the range of ports to scan , ex 0-50 \n");
     printf("  -v        Enable verbose mode\n");
 }
 
@@ -16,29 +18,27 @@ void get_timestamp(char *buffer, int size) {
 }
 
 
-void log_message(const char *level, const char *format, bool verbose_mode, ...) {
-    FILE *log_file = fopen(LOG_FILE, "a");
-    if (log_file == NULL) {
-        perror("Error opening log file");
+void log_message(const char *level, bool verbose_mode, const char *format, ...) {
+    va_list args;
+    va_start(args, format);
+
+    if (level == NULL || format == NULL) {
+        fprintf(stderr, "ERROR: log_message received NULL argument!\n");
         return;
     }
 
-    char timestamp[20];
-    get_timestamp(timestamp, sizeof(timestamp));
-
-    va_list args;
-    va_start(args, verbose_mode);
-
     if (verbose_mode) {
-        printf("- %s - [%s] ", timestamp, level); 
-        vprintf(format, args);                    
-        printf("\n");                             
+        vfprintf(stdout, format, args);
+        printf("\n");
     }
 
-    fprintf(log_file, "- %s - [%s] ", timestamp, level);  
-    vfprintf(log_file, format, args);                  
-    fprintf(log_file, "\n");                          
+    FILE *log_file = fopen(LOG_FILE, "a");
+    if (log_file) {
+        vfprintf(log_file, format, args);
+        fprintf(log_file, "\n");
+        fclose(log_file);
+    }
 
     va_end(args);
-    fclose(log_file);
 }
+

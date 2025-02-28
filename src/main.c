@@ -20,6 +20,7 @@ void handle_options(int argc, char *argv[], char **ip_address, char **rangeofpor
             case 'l':
                 printf("Option l is selected \n");
                 localhostssearch = LOCALHOSTSEARCHSELECTED;
+                *ip_address = LOCALHOST_IP;
                 break;
             case 'p':
                 printf("Option p is selected \n");
@@ -45,9 +46,9 @@ void handle_options(int argc, char *argv[], char **ip_address, char **rangeofpor
 
 void perform_scans(char *ip_address, char *rangeofports) {
     if (localhostssearch && rangeportssearch) {
-        scanning_range_of_ports(LOCALHOST_IP, rangeofports, verbose_mode);
+        scanning_range_of_ports(ip_address, rangeofports, verbose_mode);
     } else if (localhostssearch) {
-        scanning_all_ports(LOCALHOST_IP, verbose_mode);
+        scanning_all_ports(ip_address, verbose_mode);
     } else if (ipadresssearch && rangeportssearch) {
         scanning_range_of_ports(ip_address, rangeofports, verbose_mode);
     } else if (ipadresssearch) {
@@ -62,7 +63,14 @@ int main(int argc, char *argv[]) {
     char *ip_address = NULL;
     char *rangeofports = NULL;
 
+
     handle_options(argc, argv, &ip_address, &rangeofports);
+    
+    if (ip_address == NULL) {
+        log_message("ERROR", 1, "IP Address is NULL. Exiting.");
+        return STATUS_ERROR;
+    }
+    
     perform_scans(ip_address, rangeofports);
 
     return STATUS_SUCCESS;

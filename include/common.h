@@ -23,6 +23,6 @@
 void print_help_menu(int argc , char *argv[]);
 void log_scan_result(const char *ip_address, int port, int status);
 void get_timestamp(char *buffer, int size);
-void log_message(const char *level, const char *format, bool verbose_mode, ...);
+void log_message(const char *level, bool verbose_mode, const char *format, ...);
 
-#endif
+#endif                         
