@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -g -pthread
+CFLAGS = -Wall -g -lpthread
 SRC = $(wildcard src/*.c)
 OBJ = $(patsubst src/%.c, obj/%.o, $(SRC))
 CC_VERSION = $(shell gcc --version)
