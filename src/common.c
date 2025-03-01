@@ -31,9 +31,13 @@ void log_message(const char *level, bool verbose_mode, const char *format, ...) 
         vfprintf(stdout, format, args);
         printf("\n");
     }
+    
+    char timestamp[20];
+    get_timestamp(timestamp, sizeof(timestamp));
 
     FILE *log_file = fopen(LOG_FILE, "a");
     if (log_file) {
+        fprintf(log_file, "-[%s]-" , timestamp);
         vfprintf(log_file, format, args);
         fprintf(log_file, "\n");
         fclose(log_file);

@@ -6,57 +6,60 @@ int is_port_open(const char *ip_address, int port) {
     int sock;
     struct sockaddr_in server;
 
-    // Create a socket
+    // Create socket
     sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock < 0) {
         perror("Socket creation failed");
         return -1;
     }
 
-    // Set up the server address structure
+    // Set up server address
+    memset(&server, 0, sizeof(server));
     server.sin_family = AF_INET;
     server.sin_port = htons(port);
 
-    // Convert IP address from text to binary
+    // Convert IP address
     if (inet_pton(AF_INET, ip_address, &server.sin_addr) <= 0) {
         perror("Invalid IP address");
         close(sock);
         return -1;
     }
 
-    // Try connecting to the port
-    if (connect(sock, (struct sockaddr *)&server, sizeof(server)) == 0) {
-        close(sock);
-        return PORT_ACTIVE;  // Port is open
-    }
-
+    // Check connection
+    int result = connect(sock, (struct sockaddr *)&server, sizeof(server));
     close(sock);
-    return PORT_INACTIVE;  // Port is closed
+
+    return (result == 0) ? PORT_ACTIVE : PORT_INACTIVE;
 }
 
 void *scan_port_thread(void *args) {
+    if (!args) {
+        log_message("ERROR", 1, "Thread received NULL args");
+        return NULL;
+    }
+
     thread_args_t *thread_args = (thread_args_t *)args;
-
+    
     while (1) {
-        int port;
-
-        // Lock mutex to get the next port
-        pthread_mutex_lock(thread_args->queue_mutex);
-        if (thread_args->current_port > thread_args->max_port) {
-            pthread_mutex_unlock(thread_args->queue_mutex);
-            break;
+        // Atomically get the next port number
+        int port = atomic_fetch_add(&thread_args->current_port, 1);
+        if (port > thread_args->max_port) {
+            break; // Stop if all ports are scanned
         }
-        port = thread_args->current_port++;
-        pthread_mutex_unlock(thread_args->queue_mutex);
 
-        // Scan the port
+        if (!thread_args->ip_address) {
+            log_message("ERROR", 1, "IP Address is NULL in scan_port_thread");
+            return NULL;
+        }
+
+        // Scan port
         int status = is_port_open(thread_args->ip_address, port);
         if (status == PORT_ACTIVE) {
-            log_message("INFO", thread_args->verbose_mode, "IP Address: %s -> Port %d is open", thread_args->ip_address, port);
+            log_message("INFO", thread_args->verbose_mode, "IP: %s -> Port %d is OPEN", thread_args->ip_address, port);
         } else if (status == PORT_INACTIVE) {
-            log_message("INFO", thread_args->verbose_mode, "IP Address: %s -> Port %d is closed", thread_args->ip_address, port);
+            log_message("INFO", thread_args->verbose_mode, "IP: %s -> Port %d is CLOSED", thread_args->ip_address, port);
         } else {
-            log_message("ERROR", thread_args->verbose_mode, "IP Address: %s -> Error with Port %d", thread_args->ip_address, port);
+            log_message("ERROR", thread_args->verbose_mode, "IP: %s -> Error with Port %d", thread_args->ip_address, port);
         }
     }
 
@@ -65,11 +68,14 @@ void *scan_port_thread(void *args) {
 
 void scanning_all_ports(const char *ip_address, bool verbose_mode) {
     pthread_t threads[MAX_THREADS];
-    pthread_mutex_t queue_mutex = PTHREAD_MUTEX_INITIALIZER;
 
-    thread_args_t args = {ip_address, 1, MAX_PORT, verbose_mode, &queue_mutex};
+    thread_args_t args;
+    args.ip_address = ip_address;
+    atomic_init(&args.current_port, 1);  // Start scanning from port 1
+    args.max_port = MAX_PORT;
+    args.verbose_mode = verbose_mode;
 
-    // Create worker threads
+    // Create threads
     for (int i = 0; i < MAX_THREADS; i++) {
         if (pthread_create(&threads[i], NULL, scan_port_thread, &args) != 0) {
             perror("Failed to create thread");
@@ -77,13 +83,13 @@ void scanning_all_ports(const char *ip_address, bool verbose_mode) {
         }
     }
 
-    // Wait for all threads to finish
+    // Join threads
     for (int i = 0; i < MAX_THREADS; i++) {
         pthread_join(threads[i], NULL);
     }
-
-    pthread_mutex_destroy(&queue_mutex);
 }
+
+
 
 void scanning_range_of_ports(const char *ip_address, char *port_range, bool verbose_mode) {
     int start_port, end_port;

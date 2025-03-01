@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <pthread.h>
+#include <stdatomic.h>
 
 
 #define MAX_PORT 65535  // Highest possible port number
@@ -27,7 +28,7 @@ typedef struct {
 
 
 int is_port_open (const char *ip_address , int port);
-void scanning_all_ports(const char *ip_address , bool verbose_mode);
+void scanning_all_ports(const char *ip_address, bool verbose_mode);
 void scanning_range_of_ports(const char *ip_adress , char *port_range , bool verbose_mode);
 
 #endif
