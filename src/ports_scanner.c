@@ -55,11 +55,14 @@ void *scan_port_thread(void *args) {
         // Scan port
         int status = is_port_open(thread_args->ip_address, port);
         if (status == PORT_ACTIVE) {
-            log_message("INFO", thread_args->verbose_mode, "IP: %s -> Port %d is OPEN", thread_args->ip_address, port);
+            // log_message("INFO", thread_args->verbose_mode, "IP: %s -> Port %d is OPEN", thread_args->ip_address, port);
+            fprintf(stdout , "IP: %s -> Port %d is OPEN\n", thread_args->ip_address, port);
         } else if (status == PORT_INACTIVE) {
-            log_message("INFO", thread_args->verbose_mode, "IP: %s -> Port %d is CLOSED", thread_args->ip_address, port);
+            // log_message("INFO", thread_args->verbose_mode, "IP: %s -> Port %d is CLOSED", thread_args->ip_address, port);
+            // fprintf(stdout , "IP: %s -> Port %d is CLOSED\n", thread_args->ip_address, port);
         } else {
-            log_message("ERROR", thread_args->verbose_mode, "IP: %s -> Error with Port %d", thread_args->ip_address, port);
+            // log_message("ERROR", thread_args->verbose_mode, "IP: %s -> Error with Port %d", thread_args->ip_address, port);
+            fprintf(stderr , "IP: %s -> Error with Port %d\n", thread_args->ip_address, port);
         }
     }
 
