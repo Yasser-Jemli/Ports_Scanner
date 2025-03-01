@@ -7,6 +7,11 @@ bool ipadresssearch = IPADDRESSSEARCHNOTSELECTED;
 bool rangeportssearch = RANGEPORTSSEARCHNOTSELECTED;
 
 void handle_options(int argc, char *argv[], char **ip_address, char **rangeofports) {
+    if (argc == 1){
+        fprintf(stderr , "Error : No arguments provided \n");
+        fprintf(stderr , "Kindly run the program with -h option to see the help menu \n");
+        exit(STATUS_ERROR);
+    }
     int opt;
     while ((opt = getopt(argc, argv, "hvlp:r:")) != -1) {
         switch (opt) {
@@ -36,7 +41,7 @@ void handle_options(int argc, char *argv[], char **ip_address, char **rangeofpor
                 printf("Option v is selected \n");
                 verbose_mode = VERSBOSE_ACTIVE;
                 break;
-            default:
+            case '?':
                 printf("Invalid option \n");
                 printf("Kindly run the program with -h option to see the help menu \n");
                 exit(STATUS_ERROR);
@@ -67,7 +72,7 @@ int main(int argc, char *argv[]) {
     handle_options(argc, argv, &ip_address, &rangeofports);
     
     if (ip_address == NULL) {
-        log_message("ERROR", 1, "IP Address is NULL. Exiting.");
+        log_message("ERROR", 1, "IP Address is NULL. Exiting...");
         return STATUS_ERROR;
     }
     
