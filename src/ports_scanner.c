@@ -1,6 +1,12 @@
 #include "ports_scanner.h"
 #include "common.h"
-
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <pthread.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+#include <errno.h>
 
 // Shared data
 int open_ports[MAX_PORTS];
@@ -10,17 +16,26 @@ pthread_mutex_t lock;
 int is_port_open(const char *ip_address, int port) {
     int sock;
     struct sockaddr_in server;
+    struct timeval timeout;
+    timeout.tv_sec = 2;  // 2 seconds timeout
+    timeout.tv_usec = 0;
 
     sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock < 0) {
+        perror("Socket creation failed");
         return -1;
     }
+
+    // Set socket timeout
+    setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout, sizeof(struct timeval));
+    setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, (const char*)&timeout, sizeof(struct timeval));
 
     memset(&server, 0, sizeof(server));
     server.sin_family = AF_INET;
     server.sin_port = htons(port);
 
     if (inet_pton(AF_INET, ip_address, &server.sin_addr) <= 0) {
+        perror("Invalid IP address");
         close(sock);
         return -1;
     }
@@ -36,10 +51,13 @@ void *scan_ports(void *arg) {
     printf("Scanning ports from %d to %d...\n", range->start_port, range->end_port);
 
     for (int port = range->start_port; port <= range->end_port; port++) {
-        if (is_port_open(range->ip_address, port) == PORT_ACTIVE) {
+        int status = is_port_open(range->ip_address, port);
+        if (status == PORT_ACTIVE) {
             pthread_mutex_lock(&lock);
             open_ports[open_ports_count++] = port;
             pthread_mutex_unlock(&lock);
+        } else if (status == -1) {
+            log_message("ERROR", 1, "Error checking port %d on IP %s", port, range->ip_address);
         }
     }
 
@@ -60,7 +78,8 @@ void scan_ports_multithreaded(const char *ip_address, int start_port, int end_po
     for (int i = 0; i < num_threads; i++) {
         ranges[i].start_port = start_port + (i * 1000);
         ranges[i].end_port = (ranges[i].start_port + 999 > end_port) ? end_port : (ranges[i].start_port + 999);
-        strncpy(ranges[i].ip_address, ip_address, sizeof(ranges[i].ip_address));
+        strncpy(ranges[i].ip_address, ip_address, sizeof(ranges[i].ip_address) - 1);
+        ranges[i].ip_address[sizeof(ranges[i].ip_address) - 1] = '\0';  // Ensure null-termination
 
         if (pthread_create(&threads[i], NULL, scan_ports, &ranges[i]) != 0) {
             perror("Thread creation failed");
