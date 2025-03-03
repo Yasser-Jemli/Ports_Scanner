@@ -1,0 +1,5 @@
+<drinks>
+    <drink type="sode" name="coke"/>
+    <drink type="sode" name="pepsi"/>
+    <drink type="sode" name="sprite"/>
+</drinks>
