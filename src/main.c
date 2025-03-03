@@ -50,14 +50,17 @@ void handle_options(int argc, char *argv[], char **ip_address, char **rangeofpor
 }
 
 void perform_scans(char *ip_address, char *rangeofports) {
+    int start_port, end_port;
     if (localhostssearch && rangeportssearch) {
-        scanning_range_of_ports(ip_address, rangeofports, verbose_mode);
+        parse_port_range(rangeofports, &start_port,&end_port);
+        scan_ports_multithreaded(ip_address, start_port, end_port);
     } else if (localhostssearch) {
-        scanning_all_ports(ip_address, verbose_mode);
+        scan_ports_multithreaded(ip_address, START_PORT, MAX_PORTS);
     } else if (ipadresssearch && rangeportssearch) {
-        scanning_range_of_ports(ip_address, rangeofports, verbose_mode);
+        parse_port_range(rangeofports, &start_port, &end_port);
+        scan_ports_multithreaded(ip_address, start_port, end_port);
     } else if (ipadresssearch) {
-        scanning_all_ports(ip_address, verbose_mode);
+        scan_ports_multithreaded(ip_address, START_PORT, MAX_PORTS);
     } else {
         printf("No valid scan options selected. Use -h for help.\n");
         exit(STATUS_ERROR);
