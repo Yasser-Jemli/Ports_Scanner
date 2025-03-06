@@ -16,14 +16,22 @@
 #endif
 
 struct _XMLDocument{
-    char* source;
+    char* root;
 };
-
 typedef struct _XMLDocument XMLDocument;
 
+struct _XMLNode 
+{
+    char* tag ;
+    char* inner_text; 
+    struct _XMLNode* parent;
+};
+typedef struct _XMLNode XMLNode;
+
+
+XMLNode* XMLNode_new(XMLNode* parent);
 int XMLDocument_load(XMLDocument *doc, const char *path);
 void XMLDocument_free(XMLDocument *doc);
-
 
 int XMLDocument_load(XMLDocument* doc, const char *path){
     FILE* file = fopen(path,"r");
@@ -37,18 +45,18 @@ int XMLDocument_load(XMLDocument* doc, const char *path){
     fseek(file, 0, SEEK_SET);
 
 
-    doc->source = (char*) malloc(sizeof(char) * size + 1);
-    fread(doc->source ,1 , size, file);
+    char* buf = (char*) malloc(sizeof(char) * size + 1);
+    fread(buf ,1 , size, file);
     fclose(file);
-    doc->source[size] = '\0';
+    buf[size] = '\0';
 
+    doc->root = XMLNode_new(NULL);
     return TRUE;
 }
 
 
 void XMLDocument_free(XMLDocument *doc){
-    free(doc->source);
+    XMLNode_free(doc->root);
 }
-
 
 #endif
