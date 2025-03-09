@@ -2,9 +2,9 @@
 #include "ports_scanner.h"
 
 bool verbose_mode = VERBOSE_INACTIVE;
-bool localhostssearch = LOCALHOSTSEARCHNOTSELECTED;
-bool ipadresssearch = IPADDRESSSEARCHNOTSELECTED;
-bool rangeportssearch = RANGEPORTSSEARCHNOTSELECTED;
+bool localhostssearch = LOCALHOST_SEARCH_NOT_SELECTED;
+bool ipadresssearch = IPADDRESS_SEARCH_NOT_SELECTED;
+bool rangeportssearch = RANGEPORTS_SEARCH_NOT_SELECTED;
 
 void handle_options(int argc, char *argv[], char **ip_address, char **rangeofports) {
     if (argc == 1){
@@ -24,17 +24,17 @@ void handle_options(int argc, char *argv[], char **ip_address, char **rangeofpor
                 exit(STATUS_SUCCESS);
             case 'l':
                 printf("Option l is selected \n");
-                localhostssearch = LOCALHOSTSEARCHSELECTED;
+                localhostssearch = LOCALHOST_SEARCH_SELECTED;
                 *ip_address = LOCALHOST_IP;
                 break;
             case 'p':
                 printf("Option p is selected \n");
                 *ip_address = optarg;
-                ipadresssearch = IPADDRESSSEARCHSELECTED;
+                ipadresssearch = IPADDRESS_SEARCH_SELECTED;
                 break;
             case 'r':
                 printf("Option r is selected \n");
-                rangeportssearch = RANGEPORTSSEARCHSELECTED;
+                rangeportssearch = RANGEPORTS_SEARCH_SELECTED;
                 *rangeofports = optarg;
                 break;
             case 'v':

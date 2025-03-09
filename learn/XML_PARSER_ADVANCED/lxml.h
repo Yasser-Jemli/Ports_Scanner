@@ -30,8 +30,23 @@ typedef struct _XMLNode XMLNode;
 
 
 XMLNode* XMLNode_new(XMLNode* parent);
+void XMLNode_free(XMLNode* node);
 int XMLDocument_load(XMLDocument *doc, const char *path);
 void XMLDocument_free(XMLDocument *doc);
+
+XMLNode* XMLNode_new(XMLNode* parent){
+    XMLNode* node = (XMLNode*) malloc(sizeof(XMLNode));
+    node->parent = parent;
+    node->tag = NULL;
+    node->inner_text = NULL;
+    return node;
+}
+
+void XMLNode_free(XMLNode* node){
+    if(node->tag) free(node->tag);
+    if(node->inner_text) free(node->inner_text);
+    free(node);
+}
 
 int XMLDocument_load(XMLDocument* doc, const char *path){
     FILE* file = fopen(path,"r");
@@ -51,6 +66,12 @@ int XMLDocument_load(XMLDocument* doc, const char *path){
     buf[size] = '\0';
 
     doc->root = XMLNode_new(NULL);
+
+    char lex[256];
+    int lexi = 0;
+    int i = 0;
+
+    XMLNode* curr_node = NULL ;
     return TRUE;
 }
 
