@@ -9,7 +9,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <pthread.h>
-#include <stdatomic.h>
 
 
 #define MAX_PORTS 65535  // Highest possible port number
